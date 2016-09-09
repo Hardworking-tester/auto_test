@@ -43,4 +43,6 @@ def addCaseInformation():
         form.case_summary.data = ''
         db.session.add(case_info)
         db.session.commit()
+
+
     return render_template('autotemplates/addCaseInformation.html', form_html=form)
