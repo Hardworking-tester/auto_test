@@ -15,10 +15,14 @@
     </div>
     <div class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li><a href="{{url_for('auth.index')}}">你好</a></li>
+        <li><a href="{{url_for('auth.index')}}">首页</a></li>
         <li><a href="{{url_for('auth.addFunctionModels')}}">新增功能模块</a></li>
-        <li><a href="{{url_for('auth.queryModels')}}">功能模块查询</a></li>
+        <li><a href="{{url_for('auth.queryModels')}}">功能模块列表</a></li>
         <li><a href="{{url_for('auth.addCaseInformation')}}">新增测试用例</a></li>
+        <li><a href="{{url_for('auth.queryCaseInformation')}}">测试用例列表</a></li>
+        <li><a href="{{url_for('auth.addTestData')}}">新增测试数据</a></li>
+        <li><a href="{{url_for('auth.addElementLocate')}}">新增元素定位及操作方式</a></li>
+        <li><a href="{{url_for('auth.executeTest')}}">执行测试用例</a></li>
       </ul>
     </div>
 
