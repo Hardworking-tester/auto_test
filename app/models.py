@@ -57,8 +57,18 @@ class ElementLocateDb(db.Model):
     def __repr__(self):
         return '%s ' %self.element_name
 
+class ResultTestDb(db.Model):
+    # 测试结果表
+    __tablename__ = 'auto_test_result'
+    id = db.Column(db.String(128), primary_key=True)
+    case_number = db.Column(db.String(128))  # 测试用例编号
+    case_summary = db.Column(db.String(128))  # 测试用例编号
+    Result_flag = db.Column(db.String(128))  # 测试结果
+    image_path = db.Column(db.String(128))  # 测试结果图片存储位置
+    add_time = db.Column(db.String(128))  # 测试结果添加时间
 
-
+    def __repr__(self):
+        return '%s ' % self.case_number
 # print  db.session.query(CaseDataDb).all()
 # print query_case_information
 # data1=CaseDataDb.query.filter_by(case_id="72dad385e32141ef9bcecce5548db40f").first()

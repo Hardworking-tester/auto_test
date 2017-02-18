@@ -3,10 +3,11 @@
 from flask import *
 from . import auto
 from forms import FunctionModelsForm,CaseInformationForm,DataTestForm,ElementLocateForm,SubmitTestForm
-from app.models import FunctionModelsDb,CaseInformationDb,CaseDataDb,ElementLocateDb
+from app.models import FunctionModelsDb,CaseInformationDb,CaseDataDb,ElementLocateDb,ResultTestDb
 from .. import db
 from . import auto
 import uuid
+from ..resultlog import ResultLog
 from ..action import login
 from ..Data import get_number_by_data
 from selenium import webdriver
@@ -109,18 +110,33 @@ def executeTest():
     """执行测试"""
     query_case_information=db.session.query(CaseInformationDb).all()
     if request.method=="POST":
-        print "-------------------------------------------------"
-        data_list=db.session.query(CaseInformationDb.case_number).all()#得到所有的测试用例编号
 
-        for i in range(data_list.__len__()):
-            testcase_id= data_list[i][0]#获取具体的测试用例编号值
-            #根据测试用例编号获取测试用例id
-            case_id_list=db.session.query(CaseInformationDb.id).filter_by(case_number=testcase_id).all()
-            case_id= case_id_list[0][0]
-            relation_dict = {'case_0001':'login.Login().testSuccessLogin(case_id)'}#把测试用例编号和对应的方法放到字典里
-            function_name=relation_dict[testcase_id]
-            eval(function_name)
+
+        for m in query_case_information:
+
+            if request.form.get(str(m)) !=None:
+                ResultLog.ResultLog().info(request.form.get(str(m)))
+                case_id_list = db.session.query(CaseInformationDb.id).filter_by(case_number=request.form.get(str(m))).all()
+                case_id= case_id_list[0][0]
+                relation_dict = {'case_0001':'login.Login().testSuccessLogin(case_id)'}#把测试用例编号和对应的方法放到字典里
+                function_name=relation_dict[request.form.get(str(m))]
+                eval(function_name)
     return render_template('autotemplates/executeTest.html',case_informations=query_case_information)
+
+
+@auto.route('/getResult',methods=['GET','POST'])
+def getResult():
+    """得到测试结果"""
+    query_case_information=db.session.query(CaseInformationDb).all()
+    if request.method=="POST":
+        for m in query_case_information:
+            if request.form.get(str(m)) !=None:
+                ResultLog.ResultLog().info(request.form.get(str(m)))
+                case_number=request.form.get(str(m))
+                case_id_list = db.session.query(ResultTestDb.id).filter_by(case_number=case_number).all()
+                result_list = db.session.query(ResultTestDb.id,ResultTestDb.case_number,ResultTestDb.Result_flag,ResultTestDb.case_summary,ResultTestDb.add_time,ResultTestDb.image_path).filter_by(case_number=case_number).all()
+    return render_template('autotemplates/getResult.html',result_data=result_list)
+
 
 @auto.route('/executeTest11',methods=['GET','POST'])
 def executeTest11():

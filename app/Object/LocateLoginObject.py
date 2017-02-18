@@ -7,15 +7,17 @@ import OperateLoginElement
 import time,OperateLoginElement
 from  .. import db
 from ..models import CaseDataDb,CaseInformationDb,ElementLocateDb
+from ..resultlog import ResultLog
 class LocateLoginObject():
     #该类主要是去获取登录功能中所用到的元素
+    log=ResultLog.ResultLog()
     def getLocateObject(self,br,case_id):
         """根据测试用例id得到此测试用例对应的所有元素名称"""
         # login_object_list=db.session.query(ElementLocateDb.element_name).filter_by(case_id=case_id).all()
         login_object_list = db.session.query(ElementLocateDb.element_name).filter_by(case_id=case_id).order_by(ElementLocateDb.operate_index.asc()).all()
         for i in range(login_object_list.__len__()):
             login_object=login_object_list[i][0]
-            print login_object
+            self.log.info(login_object)
             self.getLocateMethodAndData(br,login_object,case_id)
 
 

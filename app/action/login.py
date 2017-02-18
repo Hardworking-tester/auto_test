@@ -3,36 +3,50 @@
 from ..Data import  get_number_by_data
 from ..Data import ReadExcel
 from selenium import webdriver
-import unittest
+import unittest,uuid,time
 from time import sleep
 import HTMLTestRunner
 from ..Object import LocateLoginObject
 from .. import db
-from ..models import CaseDataDb
+from ..models import CaseDataDb,CaseInformationDb,ResultTestDb
+from ..resultlog import ResultLog
 class Login():
 
     # def setUp(self):
     #     self.br=webdriver.Firefox()
     #     self.br.get("http://www.xnwmall.com")
     #     return self.br
-
+    log=ResultLog.ResultLog()
     def getUsernameAndPasswordByCaseId(self,case_id):
         test_data=db.session.query(CaseDataDb.key,CaseDataDb.value).filter_by(case_id=case_id).all()
         return test_data
     def testSuccessLogin(self,case_id):
         br=webdriver.Firefox()
+        br.maximize_window()
         br.get("http://sso.xnwmall.com/mall/login.shtml")
         # test_data=self.getUsernameAndPasswordByCaseId(case_id)
         LocateLoginObject.LocateLoginObject().getLocateObject(br,case_id)
+        id = str(uuid.uuid4()).replace('-', '')
+        case_number = db.session.query(CaseInformationDb.case_number).filter_by(id=case_id).all()[0][0]
+        case_summary=db.session.query(CaseInformationDb.case_summary).filter_by(id=case_id).all()[0][0]
+        result_flag = ''
+        sleep(5)
         if br.current_url=='http://user.xnwmall.com/login/login.shtml':
-            print u"登录成功，已进入会员中心"
+            self.log.info(u"登录成功，已进入会员中心")
             sleep(4)
-        br.quit()
-        # else:
-        #     print u"登录失败"
-        # self.br.get_screenshot_as_file("G:\\pyresult\\image_SuccessLogin.png")
-        # print("image_SuccessLogin.png")
+            result_flag='1'
+        else:
+            self.log.info(u"登录失败")
+            result_flag = '0'
 
+        image_path="G:\\auto_test\\app\\static\\"
+        image_name=str(time.strftime("%Y_%m_%d_%H_%M_%S",time.localtime()))+".png"
+        add_time=time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())
+        br.get_screenshot_as_file(image_path+image_name)
+        result_data=ResultTestDb(id=id,case_number=case_number,case_summary=case_summary,image_path=image_name,Result_flag=result_flag,add_time=add_time)
+        db.session.add(result_data)
+        db.session.commit()
+        br.quit()
     # def testLoginByErrorPassword(self):
     #
     #     testCase_id="case_0003"
